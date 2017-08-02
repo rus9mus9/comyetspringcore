@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="consoleEventLogger" class="logging.ConsoleEventLogger"/>
+    <bean id="dateFormat" class="java.text.DateFormat"
+          factory-method="getDateTimeInstance"/> <!--This method gets an instance of DF object invoking a static method-->
+
+    <bean id="event" class="logging.Event" scope="prototype">
+        <constructor-arg>
+            <bean class="java.util.Date"/>
+        </constructor-arg>
+        <constructor-arg ref="dateFormat"/>
+    </bean>
+    <bean id="fileEventLogger" class="logging.FileEventLogger" init-method="init"> <!--init method checks whether the file is ready in terms of I/O-->
+        <constructor-arg value="C:\Temp\sampleFile.txt"/>
+    </bean>
+    <bean id="cacheFileEventLogger" class="logging.CacheFileEventLogger" parent="fileEventLogger" destroy-method="destroy"> <!-- Extendloggers.FileEventLoggergger class -->
+        <constructor-arg index="0" value="100"/>
+    </bean>
+    <bean id="combinedEventLogger" class="logging.CombinedEventLogger"> <!--This is to demonstrate the way of initializing collections in Spring-->
+        <constructor-arg>
+            <list>
+                <ref bean="consoleEventLogger"/>
+                <ref bean="fileEventLogger"/>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>

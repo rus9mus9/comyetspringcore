@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <context:annotation-config/> <!--Configure using annotations-->
+    <import resource="loggers.xml"/> <!--Import flogginggers-->
+<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"> <!--This helps us to configure Spring using prop files-->
+        <property name="locations">
+            <list>
+                <value>client.properties</value>
+            </list>
+        </property>
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+</bean>
+<bean id="client" class="Client">
+    <property name="greeting" value="Hello there!"/> <!--Assignment of the property with Spring-->
+    <constructor-arg index="0" value="1"/>
+    <constructor-arg index="1" value="John Smith"/>
+</bean>
+
+<!--Populating using client.properties-->
+<!--
+<bean id="clientprop" class="Client">
+<constructor-arg value="${id}"/>
+<constructor-arg value="${name}"/>
+<property name="greeting" value="${greeting}"/>
+</bean>-->
+
+<!--Using of c and p-->
+<bean id="clientprop" class="Client"
+        c:id="${id}"
+        c:fullName="${name}"
+        p:greeting="${greeting}"/>
+
+<bean id="app" class="App">
+    <constructor-arg ref="client"/>
+    <constructor-arg>
+    <map> <!--Populating maps in Spring-->
+        <entry key="INFO"
+               value-ref="consoleEventLogger"/>
+        <entry key="ERROR"
+               value-ref="combinedEventLogger"/>
+    </map>
+    </constructor-arg>
+    <constructor-arg ref="event"/>
+    <property name="defaultLogger" value="#{T(logging.Event).isDay() ? fileEventLogger : consoleEventLogger}"/>
+</bean>
+
+</beans>
+
